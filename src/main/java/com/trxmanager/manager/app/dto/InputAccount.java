@@ -7,6 +7,6 @@ import java.math.BigDecimal;
 
 @Value
 @Builder
-public class NewAccount {
+public class InputAccount {
     private BigDecimal balance;
 }

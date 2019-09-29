@@ -7,7 +7,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 import static com.trxmanager.manager.domain.generated.tables.Account.ACCOUNT;
@@ -22,11 +21,22 @@ public class AccountDao {
         return Optional.ofNullable(accountRecord).map(this::mapToAccount);
     }
 
-    public Account create(BigDecimal newBalance) {
+    public Account create(Account account) {
         AccountRecord accountRecord = ctx.newRecord(ACCOUNT);
-        accountRecord.setBalance(newBalance);
+        accountRecord.setBalance(account.getBalance());
         accountRecord.store();
         return mapToAccount(accountRecord);
+    }
+
+    public Optional<Account> update(Account account) {
+        AccountRecord accountRecord = ctx.fetchOne(ACCOUNT, ACCOUNT.ID.eq(account.getId()));
+        return Optional.ofNullable(accountRecord)
+                .map(record -> {
+                    record.setBalance(account.getBalance());
+                    record.store();
+                    return record;
+                })
+                .map(this::mapToAccount);
     }
 
     private Account mapToAccount(@NonNull AccountRecord accountRecord) {

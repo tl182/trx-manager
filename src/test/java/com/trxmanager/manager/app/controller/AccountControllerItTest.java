@@ -9,8 +9,7 @@ import java.util.Map;
 
 import static com.trxmanager.manager.util.Const.HttpStatus.BAD_REQUEST;
 import static com.trxmanager.manager.util.Const.HttpStatus.OK;
-import static com.trxmanager.manager.util.Const.RequestMethod.GET;
-import static com.trxmanager.manager.util.Const.RequestMethod.POST;
+import static com.trxmanager.manager.util.Const.RequestMethod.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -106,6 +105,108 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(POST)
                 .path("/accounts")
+                .body(toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
+    public void testCreateAccount_negativeBalance() {
+        Double balance = Double.valueOf("-765.4321");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("balance", balance);
+
+        TestRequest request = TestRequest.builder()
+                .method(POST)
+                .path("/accounts")
+                .body(toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
+    public void testUpdateAccount() {
+        String id = "2";
+        Double balance = Double.valueOf("765.4321");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("balance", balance);
+
+        TestRequest request = TestRequest.builder()
+                .method(PUT)
+                .path("/accounts/" + id)
+                .body(toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(OK, response.getStatus());
+
+        Map responseBody = fromJson(response.getBody(), Map.class);
+        assertEquals(Double.valueOf(id), responseBody.get("id"));
+        assertEquals(balance, responseBody.get("balance"));
+    }
+
+    @Test
+    public void testUpdateAccount_nonExistent() {
+        String id = "4";
+        Double balance = Double.valueOf("765.4321");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("balance", balance);
+
+        TestRequest request = TestRequest.builder()
+                .method(PUT)
+                .path("/accounts/" + id)
+                .body(toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
+    public void testUpdateAccount_negativeBalance() {
+        String id = "2";
+        Double balance = Double.valueOf("-765.4321");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("balance", balance);
+
+        TestRequest request = TestRequest.builder()
+                .method(PUT)
+                .path("/accounts/" + id)
+                .body(toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
+    public void testUpdateAccount_noBalanceSpecified() {
+        TestRequest request = TestRequest.builder()
+                .method(PUT)
+                .path("/accounts/1")
+                .body(toJson(new HashMap<>()))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
+    public void testUpdateAccount_badRequest() {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("balance", "blah");
+
+        TestRequest request = TestRequest.builder()
+                .method(PUT)
+                .path("/accounts/1")
                 .body(toJson(requestBody))
                 .build();
 
