@@ -81,7 +81,7 @@ public class App {
 
     private void initH2Server() {
         try {
-            h2Server = Server.createWebServer("-webPort", "9090");
+            h2Server = Server.createWebServer("-webPort", "9090").start();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

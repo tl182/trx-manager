@@ -19,9 +19,15 @@ public abstract class Functional {
         return t -> safeGet(t, fieldExtractor).isPresent();
     }
 
-    public static <T> Predicate<T> numericFieldGt(Function<T, BigDecimal> fieldExtractor, BigDecimal value) {
+    public static <T> Predicate<T> numericFieldGtOrEq(Function<T, BigDecimal> fieldExtractor, BigDecimal value) {
         return t -> safeGet(t, fieldExtractor)
                 .filter(number -> number.compareTo(value) >= 0)
+                .isPresent();
+    }
+
+    public static <T> Predicate<T> numericFieldGt(Function<T, BigDecimal> fieldExtractor, BigDecimal value) {
+        return t -> safeGet(t, fieldExtractor)
+                .filter(number -> number.compareTo(value) > 0)
                 .isPresent();
     }
 }

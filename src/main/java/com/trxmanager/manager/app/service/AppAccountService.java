@@ -9,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.trxmanager.manager.util.Functional.fieldNonNull;
-import static com.trxmanager.manager.util.Functional.numericFieldGt;
+import static com.trxmanager.manager.util.Functional.numericFieldGtOrEq;
 
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class AppAccountService {
@@ -23,16 +22,14 @@ public class AppAccountService {
 
     public Optional<Account> create(InputAccount inputAccount) {
         return Optional.ofNullable(inputAccount)
-                .filter(fieldNonNull(InputAccount::getBalance)
-                        .and(numericFieldGt(InputAccount::getBalance, BigDecimal.ZERO)))
+                .filter(numericFieldGtOrEq(InputAccount::getBalance, BigDecimal.ZERO))
                 .map(this::mapToAccount)
                 .map(accountDao::create);
     }
 
     public Optional<Account> update(Long id, InputAccount inputAccount) {
         return Optional.ofNullable(inputAccount)
-                .filter(fieldNonNull(InputAccount::getBalance)
-                        .and(numericFieldGt(InputAccount::getBalance, BigDecimal.ZERO)))
+                .filter(numericFieldGtOrEq(InputAccount::getBalance, BigDecimal.ZERO))
                 .map(ic -> mapToAccount(id, ic))
                 .flatMap(accountDao::update);
     }
