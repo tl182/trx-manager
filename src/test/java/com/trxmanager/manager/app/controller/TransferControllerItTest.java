@@ -99,6 +99,27 @@ class TransferControllerItTest extends AbstractControllerItTest {
     }
 
     @Test
+    public void testCreateTransfer_notEnoughFunds() {
+        Double fromId = 1.0;
+        Double toId = 2.0;
+        Double amount = Double.valueOf("20.0");
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("fromId", fromId);
+        requestBody.put("toId", toId);
+        requestBody.put("amount", amount);
+
+        TestRequest request = TestRequest.builder()
+                .method(POST)
+                .path("/transfers")
+                .body(Conversions.toJson(requestBody))
+                .build();
+
+        TestResponse response = sendRequest(request);
+        assertEquals(BAD_REQUEST, response.getStatus());
+    }
+
+    @Test
     public void testCreateTransfer_badRequest() {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("fromId", "blah");

@@ -33,9 +33,10 @@ public class AppTransferService {
         }
 
         Transfer transfer = transferDao.create(mapToTransfer(inputTransfer));
-        transfer = withStatus(transfer, transferService.doTransfer(transfer));
         log.info("Created new transfer {}", transfer);
-        return transfer;
+
+        transferService.doTransfer(transfer);
+        return withStatus(transfer, Transfer.Status.SUCCEEDED);
     }
 
     private Predicate<InputTransfer> transferFilter() {

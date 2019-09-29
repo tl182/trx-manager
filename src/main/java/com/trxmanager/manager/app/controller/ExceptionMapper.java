@@ -6,6 +6,7 @@ import com.trxmanager.manager.app.exception.JsonDeserializationException;
 import com.trxmanager.manager.domain.exception.NotEnoughFundsException;
 import com.trxmanager.manager.domain.exception.RecordNotFoundException;
 import com.trxmanager.manager.domain.exception.TransferCreationException;
+import com.trxmanager.manager.domain.exception.TransferExecutionException;
 import com.trxmanager.manager.util.Conversions;
 import com.trxmanager.manager.util.retry.RetryRuntimeException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,8 @@ public class ExceptionMapper {
         exception(NotEnoughFundsException.class, badRequest());
         exception(TransferCreationException.class, badRequest());
 
-        exception(RetryRuntimeException.class, badRequest());
+        exception(RetryRuntimeException.class, internalError());
+        exception(TransferExecutionException.class, internalError());
     }
 
     private <T extends Exception> ExceptionHandler<T> badRequest() {
@@ -42,7 +44,9 @@ public class ExceptionMapper {
     private <T extends Exception> ExceptionHandler<T> internalError() {
         return (exc, req, res) -> {
             log.error("Caught unexpected exception", exc);
+            res.type(APPLICATION_JSON);
             res.status(INTERNAL_SERVER_ERROR);
+            res.body(Conversions.toJson("Internal server error"));
         };
     }
 }
