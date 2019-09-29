@@ -1,4 +1,4 @@
-package com.trxmanager.manager.domain.value;
+package com.trxmanager.manager.domain.vo;
 
 import lombok.Builder;
 import lombok.Value;

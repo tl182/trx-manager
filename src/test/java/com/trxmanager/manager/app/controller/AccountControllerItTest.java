@@ -1,6 +1,8 @@
 package com.trxmanager.manager.app.controller;
 
+import com.trxmanager.manager.util.Conversions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +41,8 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         expectedBody.put("id", 1.0);
         expectedBody.put("balance", Double.valueOf("13.336"));
 
-        assertEquals(expectedBody, fromJson(response.getBody(), Map.class));
+        Map actual = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        assertEquals(expectedBody, actual);
     }
 
     @Test
@@ -74,27 +77,15 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(POST)
                 .path("/accounts")
-                .body(toJson(requestBody))
+                .body(Conversions.toJson(requestBody))
                 .build();
 
         TestResponse response = sendRequest(request);
         assertEquals(OK, response.getStatus());
 
-        Map responseBody = fromJson(response.getBody(), Map.class);
+        Map responseBody = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
         assertNotNull(responseBody.get("id"));
         assertEquals(balance, responseBody.get("balance"));
-    }
-
-    @Test
-    public void testCreateAccount_noBalanceSpecified() {
-        TestRequest request = TestRequest.builder()
-                .method(POST)
-                .path("/accounts")
-                .body(toJson(new HashMap<>()))
-                .build();
-
-        TestResponse response = sendRequest(request);
-        assertEquals(BAD_REQUEST, response.getStatus());
     }
 
     @Test
@@ -105,24 +96,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(POST)
                 .path("/accounts")
-                .body(toJson(requestBody))
-                .build();
-
-        TestResponse response = sendRequest(request);
-        assertEquals(BAD_REQUEST, response.getStatus());
-    }
-
-    @Test
-    public void testCreateAccount_negativeBalance() {
-        Double balance = Double.valueOf("-765.4321");
-
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("balance", balance);
-
-        TestRequest request = TestRequest.builder()
-                .method(POST)
-                .path("/accounts")
-                .body(toJson(requestBody))
+                .body(Conversions.toJson(requestBody))
                 .build();
 
         TestResponse response = sendRequest(request);
@@ -140,13 +114,13 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(PUT)
                 .path("/accounts/" + id)
-                .body(toJson(requestBody))
+                .body(Conversions.toJson(requestBody))
                 .build();
 
         TestResponse response = sendRequest(request);
         assertEquals(OK, response.getStatus());
 
-        Map responseBody = fromJson(response.getBody(), Map.class);
+        Map responseBody = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
         assertEquals(Double.valueOf(id), responseBody.get("id"));
         assertEquals(balance, responseBody.get("balance"));
     }
@@ -162,37 +136,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(PUT)
                 .path("/accounts/" + id)
-                .body(toJson(requestBody))
-                .build();
-
-        TestResponse response = sendRequest(request);
-        assertEquals(BAD_REQUEST, response.getStatus());
-    }
-
-    @Test
-    public void testUpdateAccount_negativeBalance() {
-        String id = "2";
-        Double balance = Double.valueOf("-765.4321");
-
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("balance", balance);
-
-        TestRequest request = TestRequest.builder()
-                .method(PUT)
-                .path("/accounts/" + id)
-                .body(toJson(requestBody))
-                .build();
-
-        TestResponse response = sendRequest(request);
-        assertEquals(BAD_REQUEST, response.getStatus());
-    }
-
-    @Test
-    public void testUpdateAccount_noBalanceSpecified() {
-        TestRequest request = TestRequest.builder()
-                .method(PUT)
-                .path("/accounts/1")
-                .body(toJson(new HashMap<>()))
+                .body(Conversions.toJson(requestBody))
                 .build();
 
         TestResponse response = sendRequest(request);
@@ -207,7 +151,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestRequest request = TestRequest.builder()
                 .method(PUT)
                 .path("/accounts/1")
-                .body(toJson(requestBody))
+                .body(Conversions.toJson(requestBody))
                 .build();
 
         TestResponse response = sendRequest(request);

@@ -1,6 +1,5 @@
 package com.trxmanager.manager.app.controller;
 
-import com.google.gson.Gson;
 import com.trxmanager.manager.app.App;
 import lombok.Builder;
 import lombok.Value;
@@ -26,7 +25,6 @@ public class AbstractControllerItTest {
     private static final String INIT_SCRIPT_LOCATION = "classpath:db/migration/init-test.sql";
     private static final boolean ENABLE_H2_CONSOLE = true;
 
-    private static final Gson GSON = new Gson();
     private static final Map<String, String> DEFAULT_HEADERS = Collections.unmodifiableMap(
             new HashMap<String, String>() {{
                 put("Content-Type", APPLICATION_JSON);
@@ -43,14 +41,6 @@ public class AbstractControllerItTest {
 
     protected void stopTestServer() {
         app.shutDown();
-    }
-
-    protected static String toJson(Object object) {
-        return GSON.toJson(object);
-    }
-
-    protected static <T> T fromJson(String json, Class<T> tClass) {
-        return GSON.fromJson(json, tClass);
     }
 
     protected static TestResponse sendRequest(TestRequest request) {

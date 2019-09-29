@@ -68,6 +68,12 @@
             <version>5.5.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -133,6 +139,7 @@
                     <generator>
                         <database>
                             <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
+                            <recordTimestampFields>modified</recordTimestampFields>
                             <properties>
                                 <property>
                                     <key>scripts</key>

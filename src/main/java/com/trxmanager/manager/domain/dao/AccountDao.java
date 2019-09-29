@@ -2,8 +2,7 @@ package com.trxmanager.manager.domain.dao;
 
 import com.google.inject.Inject;
 import com.trxmanager.manager.domain.generated.tables.records.AccountRecord;
-import com.trxmanager.manager.domain.value.Account;
-import lombok.NonNull;
+import com.trxmanager.manager.domain.vo.Account;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 
@@ -29,17 +28,20 @@ public class AccountDao {
     }
 
     public Optional<Account> update(Account account) {
-        AccountRecord accountRecord = ctx.fetchOne(ACCOUNT, ACCOUNT.ID.eq(account.getId()));
-        return Optional.ofNullable(accountRecord)
-                .map(record -> {
-                    record.setBalance(account.getBalance());
-                    record.store();
-                    return record;
-                })
-                .map(this::mapToAccount);
+        return ctx.transactionResult(config -> {
+            DSLContext dsl = config.dsl();
+            AccountRecord accountRecord = dsl.fetchOne(ACCOUNT, ACCOUNT.ID.eq(account.getId()));
+            return Optional.ofNullable(accountRecord)
+                    .map(record -> {
+                        record.setBalance(account.getBalance());
+                        record.store();
+                        return record;
+                    })
+                    .map(this::mapToAccount);
+        });
     }
 
-    private Account mapToAccount(@NonNull AccountRecord accountRecord) {
+    private Account mapToAccount(AccountRecord accountRecord) {
         return Account.builder()
                 .id(accountRecord.getId())
                 .balance(accountRecord.getBalance())
