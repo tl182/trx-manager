@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Value
 @Builder
 public class InputTransfer {
-    private Long from;
-    private Long to;
+    private Long fromId;
+    private Long toId;
     private BigDecimal amount;
 }
