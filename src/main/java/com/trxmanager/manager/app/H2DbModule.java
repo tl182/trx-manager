@@ -8,6 +8,7 @@ import org.h2.jdbcx.JdbcConnectionPool;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
 
@@ -33,6 +34,10 @@ public class H2DbModule extends AbstractModule {
     @Provides
     @Singleton
     public DSLContext dslContext(ConnectionProvider connectionProvider) {
-        return DSL.using(connectionProvider, SQLDialect.H2);
+        Settings settings = new Settings()
+                .withUpdateRecordTimestamp(true)
+                .withExecuteWithOptimisticLocking(true)
+                .withExecuteWithOptimisticLockingExcludeUnversioned(true);
+        return DSL.using(connectionProvider, SQLDialect.H2, settings);
     }
 }
