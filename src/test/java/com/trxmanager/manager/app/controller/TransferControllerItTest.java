@@ -2,7 +2,6 @@ package com.trxmanager.manager.app.controller;
 
 import com.trxmanager.manager.util.Conversions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,7 @@ class TransferControllerItTest extends AbstractControllerItTest {
         expectedBody.put("amount", Double.valueOf("10"));
         expectedBody.put("status", "FAILED");
 
-        Map actual = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        Map actual = Conversions.fromJson(response.getBody(), Map.class);
         assertEquals(expectedBody, actual);
     }
 
@@ -91,12 +90,12 @@ class TransferControllerItTest extends AbstractControllerItTest {
         TestResponse response = sendRequest(request);
         assertEquals(OK, response.getStatus());
 
-        Map responseBody = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        Map responseBody = Conversions.fromJson(response.getBody(), Map.class);
         assertNotNull(responseBody.get("id"));
         assertEquals(fromId, responseBody.get("fromId"));
         assertEquals(toId, responseBody.get("toId"));
         assertEquals(amount, responseBody.get("amount"));
-        assertEquals("CREATED", responseBody.get("status"));
+        assertEquals("SUCCEEDED", responseBody.get("status"));
     }
 
     @Test

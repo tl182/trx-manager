@@ -10,56 +10,39 @@ import lombok.extern.slf4j.Slf4j;
 import spark.Request;
 import spark.Response;
 
-import static com.trxmanager.manager.util.Const.ContentType.APPLICATION_JSON;
-import static com.trxmanager.manager.util.Const.HttpStatus.BAD_REQUEST;
-import static spark.Spark.*;
-
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
-public class AccountController implements Controller {
+public class AccountController extends JsonController {
+
+    private static final String CONTEXT_ROUTE = "/accounts";
 
     private final AppAccountService accountService;
 
     @Override
+    protected String getContextRoute() {
+        return CONTEXT_ROUTE;
+    }
+
+    @Override
     public void registerRoutes() {
-        path("/accounts", () -> {
-            get("/:id", this::getAccount, Conversions::toJson);
-            post("", APPLICATION_JSON, this::createAccount, Conversions::toJson);
-            put("/:id", APPLICATION_JSON, this::updateAccount, Conversions::toJson);
-        });
+        getJson("/:id", this::getAccount);
+        postJson(this::createAccount);
+        putJson("/:id", this::updateAccount);
     }
 
     private Account getAccount(Request req, Response res) {
-        res.type(APPLICATION_JSON);
-
-        Long id = Conversions.parseLong(req.params(":id"))
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad id format")));
-
-        return accountService
-                .findById(id)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Could not find account for given input")));
+        Long id = parseId(req.params(":id"));
+        return accountService.findById(id);
     }
 
     private Account createAccount(Request req, Response res) {
-        res.type(APPLICATION_JSON);
-
-        InputAccount inputAccount = Conversions.fromJson(req.body(), InputAccount.class)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad account value")));
-
-        return accountService.create(inputAccount)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Could not create account for given input value")));
+        InputAccount inputAccount = Conversions.fromJson(req.body(), InputAccount.class);
+        return accountService.create(inputAccount);
     }
 
     private Account updateAccount(Request req, Response res) {
-        res.type(APPLICATION_JSON);
-
-        Long id = Conversions.parseLong(req.params(":id"))
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad id format")));
-
-        InputAccount inputAccount = Conversions.fromJson(req.body(), InputAccount.class)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad account value")));
-
-        return accountService.update(id, inputAccount)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Could not update account for given input value")));
+        Long id = parseId(req.params(":id"));
+        InputAccount inputAccount = Conversions.fromJson(req.body(), InputAccount.class);
+        return accountService.update(id, inputAccount);
     }
 }

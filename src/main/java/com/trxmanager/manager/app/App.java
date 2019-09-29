@@ -3,6 +3,7 @@ package com.trxmanager.manager.app;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.trxmanager.manager.app.controller.ControllerContainer;
+import com.trxmanager.manager.app.controller.ExceptionMapper;
 import com.trxmanager.manager.domain.DomainModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class App {
 
         port(port);
         threadPool(10);
+        injector.getInstance(ExceptionMapper.class).handleExceptions();
         injector.getInstance(ControllerContainer.class).initControllers();
         awaitInitialization();
     }

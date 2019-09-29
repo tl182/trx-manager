@@ -1,24 +1,16 @@
 package com.trxmanager.manager.util;
 
 import com.google.gson.Gson;
-
-import java.util.Optional;
+import com.google.gson.JsonSyntaxException;
+import com.trxmanager.manager.app.exception.JsonDeserializationException;
 
 public abstract class Conversions {
 
-    public static Optional<Long> parseLong(String id) {
+    public static <T> T fromJson(String json, Class<T> tClass) {
         try {
-            return Optional.of(Long.valueOf(id));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
-    }
-
-    public static <T> Optional<T> fromJson(String json, Class<T> tClass) {
-        try {
-            return Optional.ofNullable(new Gson().fromJson(json, tClass));
-        } catch (Exception e) {
-            return Optional.empty();
+            return new Gson().fromJson(json, tClass);
+        } catch (JsonSyntaxException e) {
+            throw new JsonDeserializationException("Could not deserialize json value", e);
         }
     }
 

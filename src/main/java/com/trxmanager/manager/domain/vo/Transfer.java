@@ -6,7 +6,7 @@ import lombok.Value;
 import java.math.BigDecimal;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 public class Transfer {
     private Long id;
     private Long fromId;
@@ -15,6 +15,6 @@ public class Transfer {
     private Status status;
 
     public enum Status {
-        CREATED, SUCCEEDED, FAILED;
+        CREATED, SUCCEEDED, FAILED
     }
 }

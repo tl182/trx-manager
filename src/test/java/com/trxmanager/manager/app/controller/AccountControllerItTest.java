@@ -2,7 +2,6 @@ package com.trxmanager.manager.app.controller;
 
 import com.trxmanager.manager.util.Conversions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         expectedBody.put("id", 1.0);
         expectedBody.put("balance", Double.valueOf("13.336"));
 
-        Map actual = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        Map actual = Conversions.fromJson(response.getBody(), Map.class);
         assertEquals(expectedBody, actual);
     }
 
@@ -83,7 +82,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestResponse response = sendRequest(request);
         assertEquals(OK, response.getStatus());
 
-        Map responseBody = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        Map responseBody = Conversions.fromJson(response.getBody(), Map.class);
         assertNotNull(responseBody.get("id"));
         assertEquals(balance, responseBody.get("balance"));
     }
@@ -120,7 +119,7 @@ public class AccountControllerItTest extends AbstractControllerItTest {
         TestResponse response = sendRequest(request);
         assertEquals(OK, response.getStatus());
 
-        Map responseBody = Conversions.fromJson(response.getBody(), Map.class).orElseGet(Assertions::fail);
+        Map responseBody = Conversions.fromJson(response.getBody(), Map.class);
         assertEquals(Double.valueOf(id), responseBody.get("id"));
         assertEquals(balance, responseBody.get("balance"));
     }

@@ -9,41 +9,31 @@ import lombok.RequiredArgsConstructor;
 import spark.Request;
 import spark.Response;
 
-import static com.trxmanager.manager.util.Const.ContentType.APPLICATION_JSON;
-import static com.trxmanager.manager.util.Const.HttpStatus.BAD_REQUEST;
-import static spark.Spark.*;
-
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
-public class TransferController implements Controller {
+public class TransferController extends JsonController {
+
+    private static final String CONTEXT_ROUTE = "/transfers";
 
     private final AppTransferService transferService;
 
     @Override
+    protected String getContextRoute() {
+        return CONTEXT_ROUTE;
+    }
+
+    @Override
     public void registerRoutes() {
-        path("/transfers", () -> {
-            get("/:id", this::getTransfer, Conversions::toJson);
-            post("", APPLICATION_JSON, this::createTransfer, Conversions::toJson);
-        });
+        getJson("/:id", this::getTransfer);
+        postJson(this::createTransfer);
     }
 
     private Transfer getTransfer(Request req, Response res) {
-        res.type(APPLICATION_JSON);
-
-        Long id = Conversions.parseLong(req.params(":id"))
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad id format")));
-
-        return transferService
-                .findById(id)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Could not find transfer for given input")));
+        Long id = parseId(req.params(":id"));
+        return transferService.findById(id);
     }
 
     private Transfer createTransfer(Request req, Response res) {
-        res.type(APPLICATION_JSON);
-
-        InputTransfer inputTransfer = Conversions.fromJson(req.body(), InputTransfer.class)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Bad account value")));
-
-        return transferService.create(inputTransfer)
-                .orElseThrow(() -> halt(BAD_REQUEST, Conversions.toJson("Could not create transfer for given input value")));
+        InputTransfer inputTransfer = Conversions.fromJson(req.body(), InputTransfer.class);
+        return transferService.create(inputTransfer);
     }
 }

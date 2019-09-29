@@ -2,36 +2,45 @@ package com.trxmanager.manager.app.service;
 
 import com.google.inject.Inject;
 import com.trxmanager.manager.app.dto.InputAccount;
+import com.trxmanager.manager.app.exception.InvalidValueException;
 import com.trxmanager.manager.domain.dao.AccountDao;
 import com.trxmanager.manager.domain.vo.Account;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 import static com.trxmanager.manager.util.Functional.numericFieldGtOrEq;
 
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class AppAccountService {
 
     private final AccountDao accountDao;
 
-    public Optional<Account> findById(Long id) {
+    public Account findById(Long id) {
         return accountDao.findById(id);
     }
 
-    public Optional<Account> create(InputAccount inputAccount) {
-        return Optional.ofNullable(inputAccount)
-                .filter(numericFieldGtOrEq(InputAccount::getBalance, BigDecimal.ZERO))
-                .map(this::mapToAccount)
-                .map(accountDao::create);
+    public Account create(InputAccount inputAccount) {
+        validateInputAccount(inputAccount);
+        Account account = accountDao.create(mapToAccount(inputAccount));
+        log.info("Created new account {}", account);
+        return account;
     }
 
-    public Optional<Account> update(Long id, InputAccount inputAccount) {
-        return Optional.ofNullable(inputAccount)
-                .filter(numericFieldGtOrEq(InputAccount::getBalance, BigDecimal.ZERO))
-                .map(ic -> mapToAccount(id, ic))
-                .flatMap(accountDao::update);
+    public Account update(Long id, InputAccount inputAccount) {
+        validateInputAccount(inputAccount);
+        Account account = accountDao.update(mapToAccount(id, inputAccount));
+        log.info("Updated account {}", account);
+        return account;
+    }
+
+    private void validateInputAccount(InputAccount inputAccount) {
+        boolean valid = numericFieldGtOrEq(InputAccount::getBalance, BigDecimal.ZERO).test(inputAccount);
+        if (!valid) {
+            throw new InvalidValueException("Invalid value " + inputAccount.toString());
+        }
     }
 
     private Account mapToAccount(InputAccount inputAccount) {

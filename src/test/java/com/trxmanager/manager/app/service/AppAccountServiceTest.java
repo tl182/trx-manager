@@ -1,16 +1,16 @@
 package com.trxmanager.manager.app.service;
 
 import com.trxmanager.manager.app.dto.InputAccount;
+import com.trxmanager.manager.app.exception.InvalidValueException;
 import com.trxmanager.manager.domain.dao.AccountDao;
 import com.trxmanager.manager.domain.vo.Account;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AppAccountServiceTest {
@@ -28,40 +28,36 @@ class AppAccountServiceTest {
     void create_zeroBalance() {
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ZERO).build();
 
-        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().build());
+        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().id(1L).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.create(inputAccount);
-        assertTrue(account.isPresent());
+        assertDoesNotThrow(() -> appAccountService.create(inputAccount));
     }
 
     @Test
     void create_positiveBalance() {
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ONE).build();
 
-        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().build());
+        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().id(1L).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.create(inputAccount);
-        assertTrue(account.isPresent());
+        assertDoesNotThrow(() -> appAccountService.create(inputAccount));
     }
 
     @Test
     void create_negativeBalance() {
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ONE.negate()).build();
 
-        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().build());
+        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().id(1L).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.create(inputAccount);
-        assertFalse(account.isPresent());
+        assertThrows(InvalidValueException.class, () -> appAccountService.create(inputAccount));
     }
 
     @Test
     void create_nullBalance() {
         InputAccount inputAccount = InputAccount.builder().balance(null).build();
 
-        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().build());
+        when(accountDao.create(any(Account.class))).thenReturn(Account.builder().id(1L).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.create(inputAccount);
-        assertFalse(account.isPresent());
+        assertThrows(InvalidValueException.class, () -> appAccountService.create(inputAccount));
     }
 
     @Test
@@ -69,10 +65,9 @@ class AppAccountServiceTest {
         Long id = 1L;
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ZERO).build();
 
-        when(accountDao.update(any(Account.class))).thenReturn(Optional.of(Account.builder().build()));
+        when(accountDao.update(any(Account.class))).thenReturn(Account.builder().id(id).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.update(id, inputAccount);
-        assertTrue(account.isPresent());
+        assertDoesNotThrow(() -> appAccountService.update(id, inputAccount));
     }
 
     @Test
@@ -80,10 +75,9 @@ class AppAccountServiceTest {
         Long id = 1L;
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ONE).build();
 
-        when(accountDao.update(any(Account.class))).thenReturn(Optional.of(Account.builder().build()));
+        when(accountDao.update(any(Account.class))).thenReturn(Account.builder().id(id).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.update(id, inputAccount);
-        assertTrue(account.isPresent());
+        assertDoesNotThrow(() -> appAccountService.update(id, inputAccount));
     }
 
     @Test
@@ -91,10 +85,9 @@ class AppAccountServiceTest {
         Long id = 1L;
         InputAccount inputAccount = InputAccount.builder().balance(BigDecimal.ONE.negate()).build();
 
-        when(accountDao.update(any(Account.class))).thenReturn(Optional.of(Account.builder().build()));
+        when(accountDao.update(any(Account.class))).thenReturn(Account.builder().id(id).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.update(id, inputAccount);
-        assertFalse(account.isPresent());
+        assertThrows(InvalidValueException.class, () -> appAccountService.update(id, inputAccount));
     }
 
     @Test
@@ -102,9 +95,8 @@ class AppAccountServiceTest {
         Long id = 1L;
         InputAccount inputAccount = InputAccount.builder().balance(null).build();
 
-        when(accountDao.update(any(Account.class))).thenReturn(Optional.of(Account.builder().build()));
+        when(accountDao.update(any(Account.class))).thenReturn(Account.builder().id(id).balance(inputAccount.getBalance()).build());
 
-        Optional<Account> account = appAccountService.update(id, inputAccount);
-        assertFalse(account.isPresent());
+        assertThrows(InvalidValueException.class, () -> appAccountService.update(id, inputAccount));
     }
 }

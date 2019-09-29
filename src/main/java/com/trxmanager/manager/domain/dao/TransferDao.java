@@ -1,13 +1,13 @@
 package com.trxmanager.manager.domain.dao;
 
 import com.google.inject.Inject;
+import com.trxmanager.manager.domain.exception.RecordNotFoundException;
+import com.trxmanager.manager.domain.exception.TransferCreationException;
 import com.trxmanager.manager.domain.generated.tables.records.TransferRecord;
 import com.trxmanager.manager.domain.vo.Transfer;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-
-import java.util.Optional;
 
 import static com.trxmanager.manager.domain.generated.tables.Transfer.TRANSFER;
 
@@ -16,12 +16,15 @@ public class TransferDao {
 
     private final DSLContext ctx;
 
-    public Optional<Transfer> findById(Long id) {
+    public Transfer findById(Long id) {
         TransferRecord transferRecord = ctx.fetchOne(TRANSFER, TRANSFER.ID.eq(id));
-        return Optional.ofNullable(transferRecord).map(this::mapToTransfer);
+        if (transferRecord == null) {
+            throw new RecordNotFoundException("Transfer with id " + id + " not found");
+        }
+        return mapToTransfer(transferRecord);
     }
 
-    public Optional<Transfer> create(Transfer transfer) {
+    public Transfer create(Transfer transfer) {
         try {
             TransferRecord transferRecord = ctx.newRecord(TRANSFER);
             transferRecord.setFromId(transfer.getFromId());
@@ -29,9 +32,9 @@ public class TransferDao {
             transferRecord.setAmount(transfer.getAmount());
             transferRecord.setStatus(Transfer.Status.CREATED.name());
             transferRecord.store();
-            return Optional.of(transferRecord).map(this::mapToTransfer);
+            return mapToTransfer(transferRecord);
         } catch (DataAccessException e) {
-            return Optional.empty();
+            throw new TransferCreationException("Could not create transfer", e);
         }
     }
 
