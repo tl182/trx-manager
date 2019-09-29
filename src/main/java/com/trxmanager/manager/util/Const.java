@@ -15,5 +15,6 @@ public abstract class Const {
     public static abstract class HttpStatus {
         public static final Integer OK = 200;
         public static final Integer BAD_REQUEST = 400;
+        public static final Integer INTERNAL_SERVER_ERROR = 500;
     }
 }
